@@ -5,6 +5,19 @@ eleventyNavigation:
   order: 1
 numberOfLatestPostsToShow: 3
 ---
+<img webc:is="eleventy-image" src="cat.jpg" alt="photo of my tabby cat">
+<eleventy-image src="./cat.jpg" alt="photo of my tabby cat"></eleventy-image>
+
+<!-- Specify widths: -->
+<img webc:is="eleventy-image" width="100, 200"    src="cat.jpg" alt="photo of my tabby cat" >
+<img webc:is="eleventy-image" :width="[100, 200]" src="cat.jpg" alt="photo of my tabby cat">
+
+<!-- Specify formats (overriding defaults set via the configuration) -->
+<img webc:is="eleventy-image" formats="avif, png"        src="cat.jpg" alt="photo of my tabby cat">
+<img webc:is="eleventy-image" :formats="['avif', 'png']" src="cat.jpg" alt="photo of my tabby cat">
+
+<!-- Change the url path or output dir (overriding defaults set via the configuration above) -->
+<img webc:is="eleventy-image" url-path="/some-dir/" output-dir="_site/some-dir/" src="cat.jpg" alt="photo of my tabby cat">
 {% set postsCount = collections.posts | length %}
 {% set latestPostsCount = postsCount | min(numberOfLatestPostsToShow) %}
 <h1>Latest {{ latestPostsCount }} Post{% if latestPostsCount != 1 %}s{% endif %}</h1>

@@ -1,16 +1,18 @@
-const { DateTime } = require("luxon");
-const markdownItAnchor = require("markdown-it-anchor");
+const {DateTime}=require("luxon");
+const markdownItAnchor=require("markdown-it-anchor");
 
-const pluginRss = require("@11ty/eleventy-plugin-rss");
-const pluginSyntaxHighlight = require("@11ty/eleventy-plugin-syntaxhighlight");
-const pluginBundle = require("@11ty/eleventy-plugin-bundle");
-const pluginNavigation = require("@11ty/eleventy-navigation");
-const { EleventyHtmlBasePlugin } = require("@11ty/eleventy");
+const pluginRss=require("@11ty/eleventy-plugin-rss");
+const pluginSyntaxHighlight=require("@11ty/eleventy-plugin-syntaxhighlight");
+const pluginBundle=require("@11ty/eleventy-plugin-bundle");
+const pluginNavigation=require("@11ty/eleventy-navigation");
+const {EleventyHtmlBasePlugin}=require("@11ty/eleventy");
 
-const pluginDrafts = require("./eleventy.config.drafts.js");
-const pluginImages = require("./eleventy.config.images.js");
+const eleventyWebcPlugin=require("@11ty/eleventy-plugin-webc");
+const {eleventyImagePlugin}=require("@11ty/eleventy-img");
+const pluginDrafts=require("./eleventy.config.drafts.js");
+const pluginImages=require("./eleventy.config.images.js");
 
-module.exports = function(eleventyConfig) {
+module.exports=function (eleventyConfig) {
 	// Copy the contents of the `public` folder to the output folder
 	// For example, `./public/css/` ends up in `_site/css/`
 	eleventyConfig.addPassthroughCopy({
@@ -23,15 +25,35 @@ module.exports = function(eleventyConfig) {
 
 	// Watch content images for the image pipeline.
 	eleventyConfig.addWatchTarget("content/**/*.{svg,webp,png,jpeg}");
-
+	eleventyConfig.addPlugin(eleventyWebcPlugin, {
+		components: [
+			// …
+			// Add as a global WebC component
+			"npm:@11ty/eleventy-img/*.webc",
+		]
+	});
 	// App plugins
 	eleventyConfig.addPlugin(pluginDrafts);
 	eleventyConfig.addPlugin(pluginImages);
+	// Image plugin
+	eleventyConfig.addPlugin(eleventyImagePlugin, {
+		// Set global default options
+		formats: ["webp", "jpeg"],
+		urlPath: "../content/",
+
+		// Notably `outputDir` is resolved automatically
+		// to the project output directory
+
+		defaultAttributes: {
+			loading: "lazy",
+			decoding: "async"
+		}
+	});
 
 	// Official plugins
 	eleventyConfig.addPlugin(pluginRss);
 	eleventyConfig.addPlugin(pluginSyntaxHighlight, {
-		preAttributes: { tabindex: 0 }
+		preAttributes: {tabindex: 0}
 	});
 	eleventyConfig.addPlugin(pluginNavigation);
 	eleventyConfig.addPlugin(EleventyHtmlBasePlugin);
@@ -40,7 +62,7 @@ module.exports = function(eleventyConfig) {
 	// Filters
 	eleventyConfig.addFilter("readableDate", (dateObj, format, zone) => {
 		// Formatting tokens for Luxon: https://moment.github.io/luxon/#/formatting?id=table-of-tokens
-		return DateTime.fromJSDate(dateObj, { zone: zone || "utc" }).toFormat(format || "dd LLLL yyyy");
+		return DateTime.fromJSDate(dateObj, {zone: zone||"utc"}).toFormat(format||"dd LLLL yyyy");
 	});
 
 	eleventyConfig.addFilter('htmlDateString', (dateObj) => {
@@ -50,10 +72,10 @@ module.exports = function(eleventyConfig) {
 
 	// Get the first `n` elements of a collection.
 	eleventyConfig.addFilter("head", (array, n) => {
-		if(!Array.isArray(array) || array.length === 0) {
+		if (!Array.isArray(array)||array.length===0) {
 			return [];
 		}
-		if( n < 0 ) {
+		if (n<0) {
 			return array.slice(n);
 		}
 
@@ -67,15 +89,15 @@ module.exports = function(eleventyConfig) {
 
 	// Return all the tags used in a collection
 	eleventyConfig.addFilter("getAllTags", collection => {
-		let tagSet = new Set();
-		for(let item of collection) {
-			(item.data.tags || []).forEach(tag => tagSet.add(tag));
+		let tagSet=new Set();
+		for (let item of collection) {
+			(item.data.tags||[]).forEach(tag => tagSet.add(tag));
 		}
 		return Array.from(tagSet);
 	});
 
 	eleventyConfig.addFilter("filterTagList", function filterTagList(tags) {
-		return (tags || []).filter(tag => ["all", "nav", "post", "posts"].indexOf(tag) === -1);
+		return (tags||[]).filter(tag => ["all", "nav", "post", "posts"].indexOf(tag)===-1);
 	});
 
 	// Customize Markdown library settings:
@@ -87,7 +109,7 @@ module.exports = function(eleventyConfig) {
 				symbol: "#",
 				ariaHidden: false,
 			}),
-			level: [1,2,3,4],
+			level: [1, 2, 3, 4],
 			slugify: eleventyConfig.getFilter("slugify")
 		});
 	});
